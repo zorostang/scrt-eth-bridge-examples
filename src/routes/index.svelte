@@ -2,8 +2,19 @@
 	export const prerender = true;
 </script>
 
-<script lang="ts">
-	import Counter from '$lib/Counter.svelte';
+
+<script type="ts">
+import { onMount } from "svelte";
+
+import { web3, connected, chainId, defaultEvmStores } from "svelte-web3"
+
+//let ethState;
+
+onMount(async () => {
+	//ethState = await (import("../eth.svelte"));
+	defaultEvmStores.setProvider()
+
+})
 </script>
 
 <svelte:head>
@@ -11,22 +22,33 @@
 </svelte:head>
 
 <section>
-	<h1>
-		<div class="welcome">
-			<picture>
-				<source srcset="svelte-welcome.webp" type="image/webp" />
-				<img src="svelte-welcome.png" alt="Welcome" />
-			</picture>
+	
+		<article>
+			<h3>
+				SCRT - ETH Bridge Example
+			</h3>
+
+			<p>
+				{ import.meta.env.VITE_ETH_GOV_TOKEN_ADDRESS }
+			</p>
+		</article>
+
+
+{#if !$connected}
+
+<p>My application is not yet connected</p>
+
+{:else}
+
+<p>Connected to chain with id {$chainId}</p>
+
+{/if}
+		
+
+		<div>
+			<button type="button">Button</button>
 		</div>
 
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/index.svelte</strong>
-	</h2>
-
-	<Counter />
 </section>
 
 <style>
@@ -38,22 +60,5 @@
 		flex: 1;
 	}
 
-	h1 {
-		width: 100%;
-	}
 
-	.welcome {
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
 </style>
