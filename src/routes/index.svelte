@@ -5,15 +5,16 @@
 
 <script type="ts">
 import { onMount } from "svelte";
-
 import { web3, connected, chainId, defaultEvmStores } from "svelte-web3"
+import Sscrt from "../components/sscrt.svelte";
+import { keplrState } from "../stores"
 
-//let ethState;
 
 onMount(async () => {
-	//ethState = await (import("../eth.svelte"));
-	defaultEvmStores.setProvider()
 
+	console.log("Keplr is available:")
+	console.log(JSON.stringify(keplrState))
+		
 })
 </script>
 
@@ -23,14 +24,20 @@ onMount(async () => {
 
 <section>
 	
-		<article>
+		<article class="d-flex flex-column">
 			<h3>
 				SCRT - ETH Bridge Example
 			</h3>
 
 			<p>
+				Contract Address:
 				{ import.meta.env.VITE_ETH_GOV_TOKEN_ADDRESS }
 			</p>
+
+			<Sscrt />
+
+
+			
 		</article>
 
 
@@ -41,15 +48,22 @@ onMount(async () => {
 {:else}
 
 <p>Connected to chain with id {$chainId}</p>
+<p>
+	{ #await $web3.eth.getAccounts()}
+		Waiting
+	{:then  acc} 
+		My address: {acc[0]}
+	{/await}
+</p>
 
 {/if}
 		
-
-		<div>
-			<button type="button">Button</button>
-		</div>
+	<div>
+		<button type="button">Button</button>
+	</div>
 
 </section>
+
 
 <style>
 	section {
@@ -59,6 +73,4 @@ onMount(async () => {
 		align-items: center;
 		flex: 1;
 	}
-
-
 </style>
