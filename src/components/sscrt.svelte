@@ -7,8 +7,6 @@
 
     const onClick = (e : any) => {
         e.preventDefault();
-        console.log("Amount:", amount, Math.round(amount * Math.pow(10, 6)).toString())
-
         keplrState.sendSscrt(Math.round(amount * Math.pow(10, 6)).toString())
         .then(res => console.log(res))
         .catch(e => console.error(e))

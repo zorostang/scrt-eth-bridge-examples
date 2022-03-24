@@ -4,18 +4,18 @@
 
 
 <script type="ts">
-import { onMount } from "svelte";
-import { web3, connected, chainId, defaultEvmStores } from "svelte-web3"
-import Sscrt from "../components/sscrt.svelte";
-import { keplrState } from "../stores"
+	import { onMount } from "svelte";
+	import { web3, connected, chainId } from "svelte-web3"
+	import Sscrt from "../components/sscrt.svelte";
+	import Eth from "../components/eth.svelte";
+	import { keplrState } from "../stores"
 
 
-onMount(async () => {
-
-	console.log("Keplr is available:")
-	console.log(JSON.stringify(keplrState))
-		
-})
+	onMount(async () => {
+		console.log("Keplr is available:")
+		console.log(JSON.stringify(keplrState))
+			
+	})
 </script>
 
 <svelte:head>
@@ -34,7 +34,14 @@ onMount(async () => {
 				{ import.meta.env.VITE_ETH_GOV_TOKEN_ADDRESS }
 			</p>
 
-			<Sscrt />
+			<div class="my-3">
+				<Sscrt />
+			</div>
+
+			<div class="my-3">
+				<Eth />
+			</div>
+
 
 
 			
@@ -58,10 +65,6 @@ onMount(async () => {
 
 {/if}
 		
-	<div>
-		<button type="button">Button</button>
-	</div>
-
 </section>
 
 

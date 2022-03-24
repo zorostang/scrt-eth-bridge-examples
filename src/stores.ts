@@ -107,7 +107,7 @@ class Web3State {
                                     },
                                     features: ['secretwasm'],
                                 });
-                                
+                                    
         // Enable Keplr.
         // This pops-up a window for the user to allow keplr access to the webpage.
         await window.keplr.enable(this.chainId);
@@ -141,8 +141,8 @@ class Web3State {
 
         const handle = {
             add_token: {  
-                address: sSCRTcontract,
-                code_hash: "9587d60b8e6b078ace12014ceeee089530b9fabcd76535d93666a6c127ad8813",
+                address: "secret1uy7phvlk2pak99mzr8tjh88zekvmju6fal497k", //sSCRTcontract,
+                code_hash: "2da545ebc441be05c9fa6338f3353f35ac02ec4b02454bc49b1a66f4b9866aed",
                 minimum_amount : "5"  
             }
         }
@@ -164,7 +164,7 @@ class Web3State {
             }
         }
 
-        return await this.client.execute(sSCRTcontract, handle)    
+        return await this.client.execute("secret1uy7phvlk2pak99mzr8tjh88zekvmju6fal497k", handle)    
     }
 
     async getSignature() {

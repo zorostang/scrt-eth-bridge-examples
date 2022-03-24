@@ -11,7 +11,9 @@
 		keplrState.setupKeplr()
 
 		/* setTimeout(() => {
-			keplrState.addToken();
+			keplrState.addToken()
+			.then(res => console.log(res))
+			.catch(e => console.error(e));
 
 		}, 1500) */
 	})
