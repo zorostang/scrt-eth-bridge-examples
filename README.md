@@ -1,2 +1,1 @@
-# secret-hunters
-Frontend site for the minting collection
+# scrt-eth-bridge-examples
