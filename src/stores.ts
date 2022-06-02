@@ -1,8 +1,8 @@
 import {  SigningCosmWasmClient } from "secretjs";
+import { Buffer } from "buffer"
 
 const restAddress = "https://lcd.pulsar.griptapejs.com/"
 const sSCRTcontract = "secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg"
-
 
 
 const sleep = (ms : number) => new Promise((accept) => setTimeout(accept, ms));
@@ -30,11 +30,11 @@ const tryWait = async (conditionCallback : Function,
 class Web3State {
 
     private client : any;
-    private address : string = "";
+    public address : string = "";
 
     private readonly permitParams : any = {
-        permit_name: "_permit",
-        allowed_tokens: [this.contractAddress],
+        permit_name: "new_permit",
+        allowed_tokens: [this.tokenContract],
         permissions: ['owner'],
     };
 
@@ -45,7 +45,10 @@ class Web3State {
         public connected: boolean = false,
     	public chainId : string = 'pulsar-2',
         public contractAddress : string = "secret1925shc39c2juu2k375f2w4a98sehytu763jp2z",
-        public codeHash : string = "60d4f9b200f68166a9c7bfaefd86abdbd413679b5ef4f7276178c70acc75bb55"
+        public proxyAddress : string = "secret12nntrlzadp0c6cdzz6h24esm2eryvj2cq83yca",
+        public codeHash : string = "60d4f9b200f68166a9c7bfaefd86abdbd413679b5ef4f7276178c70acc75bb55",
+        public tokenContract : string = "secret1uy7phvlk2pak99mzr8tjh88zekvmju6fal497k",
+        public vk : string = "api_key_9MY/sCho72bEzPQHwnfd9bZq5szuFJONKSj+R2VDzew="
     ) {
         if (typeof window !== 'undefined') {
             const conn : string | null  = localStorage.getItem("connected");
@@ -56,6 +59,16 @@ class Web3State {
         }
     }
 
+    async ifConnected() {
+        try {
+            await tryWait(() => !this.connected, "Couldn't get tokens", 5000)
+            return true
+        } catch (_) {
+            return false;
+        }
+        
+
+    }
 
     async setupKeplr() {
         
@@ -63,50 +76,7 @@ class Web3State {
         await tryWait(() => (!window.keplr && !window.getOfflineSigner && !window.getEnigmaUtils), 
                             "Couldn't connect to Keplr. Make sure it is installed")
         
-        
-                            await window.keplr.experimentalSuggestChain({
-                                chainId: this.chainId,
-                                    chainName: 'Pulsar-2',
-                                    rpc: 'https://rpc.pulsar.griptapejs.com/',
-                                    rest: 'https://lcd.pulsar.griptapejs.com/',
-                                    bip44: {
-                                        coinType: 529,
-                                    },
-                                    coinType: 529,
-                                    stakeCurrency: {
-                                        coinDenom: 'SCRT',
-                                        coinMinimalDenom: 'uscrt',
-                                        coinDecimals: 6,
-                                    },
-                                    bech32Config: {
-                                        bech32PrefixAccAddr: 'secret',
-                                        bech32PrefixAccPub: 'secretpub',
-                                        bech32PrefixValAddr: 'secretvaloper',
-                                        bech32PrefixValPub: 'secretvaloperpub',
-                                        bech32PrefixConsAddr: 'secretvalcons',
-                                        bech32PrefixConsPub: 'secretvalconspub',
-                                    },
-                                    currencies: [
-                                        {
-                                            coinDenom: 'SCRT',
-                                            coinMinimalDenom: 'uscrt',
-                                            coinDecimals: 6,
-                                        },
-                                    ],
-                                    feeCurrencies: [
-                                        {
-                                            coinDenom: 'SCRT',
-                                            coinMinimalDenom: 'uscrt',
-                                            coinDecimals: 6,
-                                        },
-                                    ],
-                                    gasPriceStep: {
-                                        low: 0.1,
-                                        average: 0.25,
-                                        high: 0.4,
-                                    },
-                                    features: ['secretwasm'],
-                                });
+
                                     
         // Enable Keplr.
         // This pops-up a window for the user to allow keplr access to the webpage.
@@ -141,8 +111,8 @@ class Web3State {
 
         const handle = {
             add_token: {  
-                address: "secret1uy7phvlk2pak99mzr8tjh88zekvmju6fal497k", //sSCRTcontract,
-                code_hash: "2da545ebc441be05c9fa6338f3353f35ac02ec4b02454bc49b1a66f4b9866aed",
+                address: this.proxyAddress, //"secret1uy7phvlk2pak99mzr8tjh88zekvmju6fal497k",
+                code_hash: "a1fbec81cea8ffcd0a7ec95cc3adfc64c4b3a4584c51af08ba0569fa1f91a821", //"2da545ebc441be05c9fa6338f3353f35ac02ec4b02454bc49b1a66f4b9866aed",
                 minimum_amount : "5"  
             }
         }
@@ -150,28 +120,47 @@ class Web3State {
         return await this.client.execute(this.contractAddress, handle)    
     }
 
-    async sendSscrt(amount : string) {
+    async sendSscrt(amount : string, destination: string) {
+
+        const handle = {
+            send: {
+                amount: amount,
+                recipient: this.proxyAddress,
+                recipient_code_hash: "a1fbec81cea8ffcd0a7ec95cc3adfc64c4b3a4584c51af08ba0569fa1f91a821", //this.codeHash,
+                msg: Buffer.from(destination).toString('base64')   
+            }
+        }
+
+ 
+
+        return await this.client.execute(sSCRTcontract, handle)    
+    }
+
+
+    async sendSeth(amount : string) {
 
         const msg = "MHhGQTIyYzFCRjNiMDc2RDJCNTc4NUE1MjdDMzg5NDliZTQ3RWExMDgy";
 
         const handle = {
             send: {
                 amount: amount,
-                recipient: this.contractAddress,
+                recipient: this.tokenContract,
                 recipient_code_hash: this.codeHash,
                 //msg: Buffer.from(JSON.stringify(Msg)).toString('base64') 
                 msg       
             }
         }
 
-        return await this.client.execute("secret1uy7phvlk2pak99mzr8tjh88zekvmju6fal497k", handle)    
+        return await this.client.execute(sSCRTcontract, handle)    
     }
 
+
     async getSignature() {
+
         
         const {signature} = await window.keplr.signAmino(
             this.chainId,
-            this.address,
+            this.tokenContract,
             {
                 chain_id: this.chainId,
                 account_number: "0", // Must be 0
@@ -232,13 +221,52 @@ class Web3State {
         return await this.customQueryPermit({ nft_dossier : { token_id : id }})
     }
 
+    async getBalance() {
+
+        return await this.client.queryContractSmart(this.tokenContract, {  balance : { address : this.address, key : this.vk }})
+    }
+
+    async checkTx(hash="AE362C4BEFCD9DFE46093A2CC858DEC5066220DE804E185C1B336E91858EE4B0") {
+        return await this.client.restClient.txById(hash);
+    }
+
+
+    async setKey() {
+        return await this.client.execute(this.tokenContract, { create_viewing_key : { entropy : "123"} })
+    }
+
+
     async transfer(token_id:string, recipient:string) {
         return await this.client.execute(this.contractAddress, { transfer_nft : { token_id, recipient }} )    
     }
 
+
     async getTokens() {
         await tryWait(() => !this.address, "Couldn't get tokens", 5000)
         return await this.customQueryPermit({ tokens : { owner : this.address }})
+    }
+
+    async getLastBurnedTokens() {
+        return await this.client.queryContractSmart(this.contractAddress, { swap : { nonce: this.lastNonce(), token: this.proxyAddress }})
+
+    }
+
+    lastNonce() {
+        const storage = localStorage.getItem("lastNonce"); 
+        if (!storage) {
+            return 4
+        } else {
+            return parseInt(storage);
+        }
+    }
+
+    incrementNonce() {
+        const storage = localStorage.getItem("lastNonce"); 
+        if (!storage) {
+            localStorage.setItem("lastNonce", "1")
+        } else {
+            localStorage.setItem("lastNonce", (parseInt(storage) + 1).toString());
+        }
     }
 
 

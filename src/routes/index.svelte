@@ -14,6 +14,9 @@
 	onMount(async () => {
 		console.log("Keplr is available:")
 		console.log(JSON.stringify(keplrState))
+
+		/* fetch('/transactions')
+		.then(async res => console.log(await res.text())) */
 			
 	})
 </script>

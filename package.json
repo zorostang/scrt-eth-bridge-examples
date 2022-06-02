@@ -37,12 +37,16 @@
 	"dependencies": {
 		"@material/elevation": "^13.0.0",
 		"@rodneylab/svelte-social-icons": "^0.0.16",
+		"@typegoose/typegoose": "^9.7.1",
 		"aos": "^3.0.0-beta.6",
 		"browser-crypto": "^1.4.0",
+		"buffer": "^6.0.3",
 		"dotenv": "^10.0.0",
+		"mongoose": "^6.2.11",
 		"secretjs": "^0.17.5",
 		"svelte-kit": "^1.0.0",
 		"svelte-web3": "^3.3.8",
-		"three": "^0.135.0"
+		"three": "^0.135.0",
+		"web3": "^1.7.3"
 	}
 }

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Header from '$lib/header/Header.svelte';
 	import { keplrState } from '../stores';
 	import { onMount } from 'svelte';
 	import { web3, connected, chainId, defaultEvmStores } from "svelte-web3"
@@ -16,11 +15,31 @@
 			.catch(e => console.error(e));
 
 		}, 1500) */
+
+		/* setTimeout(() => {
+			keplrState.getBalance()
+			.then(res => console.log(res))
+			.catch(e => console.error(e));
+
+		}, 1500) */
+
+		/* setTimeout(() => {
+			keplrState.setKey()
+			.then(res => console.log("key", JSON.stringify(res)))
+			.catch(e => console.error(e));
+
+		}, 1500) */
+
+		/* setTimeout(() => {
+			keplrState.getLastBurnedTokens()
+			.then(res => console.log(res))
+			.catch(e => console.error(e));
+
+		}, 1500) */
 	})
 
 </script>
 
-<Header />
 
 <main>
 	<slot />

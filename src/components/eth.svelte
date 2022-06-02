@@ -5,13 +5,11 @@
     import json from "../assets/Contract.json"
 
     let amount;
-
     let contract;
 
     onMount(() => { 
         setTimeout(() => {
-            contract =  new $web3.eth.Contract(json.abi, "0xFA22c1BF3b076D2B5785A527C38949be47Ea1082")
-            console.log(contract.methods)
+            contract =  new $web3.eth.Contract(json.abi, "0x4D11F8de0F8B821c048837857B2bad3a358873ff")
         }, 1500)
     })
     
@@ -19,13 +17,12 @@
         e.preventDefault();
         if (!$connected) return;
         console.log($selectedAccount)
+
+
         contract.methods.getFeeCollector().call()
-        .then(async _ => {
+        .then(() => {
 
-            //const owners = await contract.methods.getOwners().call()
-            //console.log("owners:", owners)
-
-            return contract.methods.swap(["secret1925shc39c2juu2k375f2w4a98sehytu763jp2z"]).send({
+            return contract.methods.swap("0x0d8Fd8519406b9d6e17a8231da1Dc855780Bd5eC").send({
                 value: $web3.utils.toWei("0.02"),
                 from: $selectedAccount,
             })
