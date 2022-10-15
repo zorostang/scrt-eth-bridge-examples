@@ -55,8 +55,7 @@
 
         console.log("recep", $web3.utils.fromAscii(sscrtDestination))
 
-
-        const event = {
+        /* const event = {
             address: '0x236b3130836103443c39cb8Dbdcdc57091dC7Bc0',
             blockHash: '0xfdac0ea7132ec1c68213ac4eaf0e74d37c4e32bdcb56b2aa8512da2bba36bad6',
             blockNumber: 7774291,
@@ -89,10 +88,10 @@
             ...postOptions,
             body: JSON.stringify({type: "wscrtToSscrt" , body: event })
         })
-        console.log("res:", res)
+        console.log("res:", res) */
 
 
-        /* try {
+        try {
             contract.methods.swapToken($web3.utils.fromAscii(sscrtDestination), (BigInt(wscrtAmount) * (10n ** 18n)).toString(), WSCRT_ADDRESS).send({
                 value: "0",
                 from: $selectedAccount,
@@ -104,7 +103,7 @@
 
                 const res = await fetch("/transactions", {
                     ...postOptions,
-                    body: JSON.stringify({type: "wscrtToSscrt" , body: receipt.events["SwapToken"] )
+                    body: JSON.stringify({type: "wscrtToSscrt" , body: receipt.events["SwapToken"] })
                 })
                 console.log("res:", res)
 
@@ -120,7 +119,7 @@
 
         } catch (e) {
             console.log("wscrtTosscrt err:", e);
-        } */
+        }
     }
 
     onMount(() => {

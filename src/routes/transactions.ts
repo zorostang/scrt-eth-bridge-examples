@@ -1,6 +1,6 @@
 import "../db";
 import { ethTxModel } from "../models";
-import { scrtClient, ethClient, ethContract, erc20Contract, account } from "../client";
+import { scrtClient, ethClient, ethContract, erc20Contract, account, getScrtClient } from "../client";
 import Web3 from "web3";
 
 const PROXY_ADDRESS = import.meta.env.VITE_PROXY_ADDRESS as string;
@@ -84,10 +84,15 @@ const wscrtToSscrt = async (body) => {
     const found = events.find((e : any) => e.id === body.id)
     
     if (found) {
-        const resBytes = found.returnValues.recipient;
-        const recipient = Web3.utils.toAscii(resBytes);
-        console.log("r:",recipient)
-
+        const { recipient, amount } = found.returnValues;
+        const scrtRecipient = Web3.utils.toAscii(recipient);
+        const scrtClient = await getScrtClient()
+        const mint = await scrtClient.execute(PROXY_ADDRESS,  { 
+            mint : { recipient: scrtRecipient, amount: amount.slice(0, 7)} },
+            "", undefined, 
+            { gas: "800000", amount: [{ amount: "150000", denom: "uscrt" }] }
+        );
+        console.log("mint:", mint)
         status = "success";
     
     }
