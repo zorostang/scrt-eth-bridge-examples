@@ -28,6 +28,10 @@ export class EthTx {
 
     @prop({ type: String, index: true})
     public txId: string;
+
+    @prop({ type: String })
+    public status: string;
+    
 }
 
 

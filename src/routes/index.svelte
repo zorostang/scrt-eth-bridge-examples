@@ -8,12 +8,12 @@
 	import { web3, connected, chainId } from "svelte-web3"
 	import Sscrt from "../components/sscrt.svelte";
 	import Eth from "../components/eth.svelte";
-	import { keplrState } from "../stores"
+	import { keplrState } from "../lib/keplr"
 
 
 	onMount(async () => {
 		console.log("Keplr is available:")
-		console.log(JSON.stringify(keplrState))
+		//console.log(JSON.stringify(keplrState))
 
 		/* fetch('/transactions')
 		.then(async res => console.log(await res.text())) */
@@ -41,10 +41,10 @@
 				<Sscrt />
 			</div>
 
-			<div class="my-3">
+			<!-- <div class="my-3">
 				<Eth />
 			</div>
-
+ -->
 
 
 			

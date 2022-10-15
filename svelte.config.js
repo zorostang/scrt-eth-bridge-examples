@@ -16,9 +16,9 @@ const config = {
 			fallback: null
 		}),
 
-		/* vite: {
+		vite: {
 			define: { 'process.env': process.env },
-		} */
+		}
 
 
 	}

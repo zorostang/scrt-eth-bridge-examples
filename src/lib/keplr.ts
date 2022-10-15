@@ -1,35 +1,15 @@
 import {  SigningCosmWasmClient } from "secretjs";
 import { Buffer } from "buffer"
+import { keplrConnected } from "./stores";
+import { tryWait } from "./utils";
 
-const restAddress = "https://lcd.pulsar.griptapejs.com/"
-const sSCRTcontract = "secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg"
-
-
-const sleep = (ms : number) => new Promise((accept) => setTimeout(accept, ms));
-
-
-const tryWait = async (conditionCallback : Function, 
-                errorText : string,
-                timeout : number = 1200) => {
-
-    let counter = 0;
-
-    while (conditionCallback()) {
-        counter += 10;
-        if (counter > timeout) {
-            throw Error(errorText);
-        }
-        await sleep(10);
-    }
-    
-}
+const restAddress = import.meta.env.VITE_SCRT_ENDPOINT as string
+const sSCRTcontract = import.meta.env.VITE_SSCRT as string
 
 
+class KeplrState {
 
-
-class Web3State {
-
-    private client : any;
+    private client : SigningCosmWasmClient | undefined;
     public address : string = "";
 
     private readonly permitParams : any = {
@@ -66,9 +46,8 @@ class Web3State {
         } catch (_) {
             return false;
         }
-        
-
     }
+
 
     async setupKeplr() {
         
@@ -76,7 +55,6 @@ class Web3State {
         await tryWait(() => (!window.keplr && !window.getOfflineSigner && !window.getEnigmaUtils), 
                             "Couldn't connect to Keplr. Make sure it is installed")
         
-
                                     
         // Enable Keplr.
         // This pops-up a window for the user to allow keplr access to the webpage.
@@ -98,17 +76,14 @@ class Web3State {
           window.getEnigmaUtils(this.chainId),
         );
 
-        
-            
-            
-    
+        keplrConnected.set(true);
+
         this.connected = true;
         localStorage.setItem("connected", "true")
     }
 
 
     async addToken() {
-
         const handle = {
             add_token: {  
                 address: this.proxyAddress, //"secret1uy7phvlk2pak99mzr8tjh88zekvmju6fal497k",
@@ -128,12 +103,11 @@ class Web3State {
                 recipient: this.proxyAddress,
                 recipient_code_hash: "a1fbec81cea8ffcd0a7ec95cc3adfc64c4b3a4584c51af08ba0569fa1f91a821", //this.codeHash,
                 msg: Buffer.from(destination).toString('base64')   
-            }
+            },
+            
         }
 
- 
-
-        return await this.client.execute(sSCRTcontract, handle)    
+        return await this.client!.execute(sSCRTcontract, handle, "", undefined, { gas: "1500000", amount: undefined })    
     }
 
 
@@ -268,13 +242,7 @@ class Web3State {
             localStorage.setItem("lastNonce", (parseInt(storage) + 1).toString());
         }
     }
-
-
-
-
-
-
 }
 
 
-export const keplrState = new Web3State();
+export const keplrState = new KeplrState();
