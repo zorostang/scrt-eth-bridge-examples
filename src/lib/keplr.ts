@@ -102,14 +102,11 @@ class KeplrState {
             
         }
 
-        console.log("handle:", handle) 
-
         return await this.client!.execute(sSCRTcontract, handle, "", undefined, { gas: "1500000", amount: undefined })    
     }
 
 
     async sendSeth(amount : string, destination: string) {
-
 
         const handle = {
             send: {
@@ -212,28 +209,6 @@ class KeplrState {
         return await this.customQueryPermit({ tokens : { owner : this.address }})
     }
 
-
-    async getLastBurnedTokens() {
-        return await this.client.queryContractSmart(this.contractAddress, { swap : { nonce: this.lastNonce(), token: this.proxyAddress }})
-    }
-
-    lastNonce() {
-        const storage = localStorage.getItem("lastNonce"); 
-        if (!storage) {
-            return 4
-        } else {
-            return parseInt(storage);
-        }
-    }
-
-    incrementNonce() {
-        const storage = localStorage.getItem("lastNonce"); 
-        if (!storage) {
-            localStorage.setItem("lastNonce", "1")
-        } else {
-            localStorage.setItem("lastNonce", (parseInt(storage) + 1).toString());
-        }
-    }
 }
 
 

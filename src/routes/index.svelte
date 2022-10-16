@@ -8,6 +8,7 @@
 	import Sscrt from "../components/sscrt.svelte";
 	import Eth from "../components/eth.svelte";
 
+
 	const ethChainIds = {
 		"1" : "Ethereum Mainnet",
 		"aa36a7" : "Sepolia",
