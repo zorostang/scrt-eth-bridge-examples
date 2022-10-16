@@ -2,24 +2,35 @@
 
     import { keplrState } from "../lib/keplr"
 	import { web3, connected, selectedAccount } from "svelte-web3"
-    import { keplrConnected } from "$lib/stores";
+    import { keplrConnected, scrtAccount } from "$lib/stores";
 
-    import json  from "../assets/Contract.json"
+    import json  from "../assets/ERC20.json"
     import { onMount } from "svelte";
     import { postOptions } from "$lib/utils";
+    import type {Contract} from 'web3-eth-contract';
+
 
     const WSCRT_ADDRESS = import.meta.env.VITE_ERC20 as string;
     const MANAGER_ADDRESS = import.meta.env.VITE_MULTISIG as string;
+    const ERC20_ADDRESS = import.meta.env.VITE_ERC20 as string;;
 
     
-    let sscrtAmount : number = 0, wscrtAmount : number = 0;
-    let sscrtDestination = "", wscrtDestination = "";
+    let 
+        sscrtAmount : number = 1, 
+        wscrtAmount : number = 1,
+        sscrtDestination = "", 
+        wscrtDestination = "";
 
-    $: if ($connected && $keplrConnected) wscrtDestination = $selectedAccount;
-    
+    $: if ($connected ) wscrtDestination = $selectedAccount;
+    $: if ($keplrConnected) sscrtDestination = $scrtAccount;
 
     const allow = () => {
-
+        const contract : Contract =  new $web3.eth.Contract(json.abi as any, ERC20_ADDRESS)
+        contract.methods.increaseAllowance(
+            MANAGER_ADDRESS,
+            $web3.utils.toWei(wscrtAmount.toString(), 'szabo'),
+        )
+        .send({ value: "0", from: $selectedAccount})
     }
 
     const sscrtToWscrt = (e : any) => {
@@ -48,16 +59,12 @@
 
     const wscrtToSscrt = async (e : any) => {
         e.preventDefault();
-
-        const contract =  new $web3.eth.Contract(json.abi as any, MANAGER_ADDRESS)
-
-        console.log("recep", $web3.utils.fromAscii(sscrtDestination))
-
+        const contract : Contract =  new $web3.eth.Contract(json.abi as any, MANAGER_ADDRESS)
 
         try {
             contract.methods.swapToken(
                 $web3.utils.fromAscii(sscrtDestination), 
-                $web3.utils.toWei(wscrtAmount.toString(), 'szabo'), 
+                $web3.utils.toWei(wscrtAmount.toString(), 'szabo'),
                 WSCRT_ADDRESS
             ).send({
                 value: "0",
@@ -101,7 +108,7 @@
 
 
 <form class="my-3">
-    <label for="sscrt">Swap SSCRT to WSCRT</label>
+    <label for="sscrt">Swap sSCRT to WSCRT</label>
     <div class="form-group d-flex">
         <input type="number"  class="form-control" bind:value={sscrtAmount}>
         <input type="text"  class="form-control" bind:value={wscrtDestination}>
@@ -116,12 +123,12 @@
 <form class="my-3">
 
     
-    <label for="sscrt">Swap WSCRT to SSRT</label>
+    <label for="sscrt">Swap WSCRT to sSCRT</label>
     <div class="form-group d-flex">
         <input type="number"  class="form-control" bind:value={wscrtAmount}>
         <input type="text" class="form-control" bind:value={sscrtDestination}>
 
-        <button on:click={wscrtToSscrt} class="btn btn-primary">
+        <button on:click={allow} class="btn btn-primary">
             Allow
         </button>
         <button on:click={wscrtToSscrt} class="btn btn-primary">

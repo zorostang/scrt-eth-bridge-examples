@@ -18,9 +18,7 @@ type Result = {
     message?: string;
 } 
 
-
 const ssrtToWscrt = async (body) => {
-
     let status = "error", txHash = "";
 
     const txId = body.logs[0].events
@@ -80,9 +78,7 @@ const ssrtToWscrt = async (body) => {
     })
 
     await txModel.create({txId, destination, amount, status })
-
     return { status, txHash };
-
 }
 
 
