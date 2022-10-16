@@ -1,11 +1,15 @@
 import {  SigningCosmWasmClient } from "secretjs";
 import { Buffer } from "buffer"
-import { keplrConnected } from "./stores";
+import { keplrConnected, scrtAccount } from "./stores";
 import { tryWait } from "./utils";
 
 const restAddress = import.meta.env.VITE_SCRT_ENDPOINT as string
 const sSCRTcontract = import.meta.env.VITE_SSCRT as string
+const sETHcontract = import.meta.env.VITE_SETH as string
 
+const PROXY_HASH = import.meta.env.VITE_PROXY_HASH as string;
+const SCRT_PROXY = import.meta.env.VITE_SCRT_PROXY as string;
+const ETH_PROXY = import.meta.env.VITE_ETH_PROXY as string;
 
 class KeplrState {
 
@@ -77,55 +81,46 @@ class KeplrState {
         );
 
         keplrConnected.set(true);
+        scrtAccount.set(this.address);
 
         this.connected = true;
         localStorage.setItem("connected", "true")
     }
 
 
-    async addToken() {
-        const handle = {
-            add_token: {  
-                address: this.proxyAddress, //"secret1uy7phvlk2pak99mzr8tjh88zekvmju6fal497k",
-                code_hash: "a1fbec81cea8ffcd0a7ec95cc3adfc64c4b3a4584c51af08ba0569fa1f91a821", //"2da545ebc441be05c9fa6338f3353f35ac02ec4b02454bc49b1a66f4b9866aed",
-                minimum_amount : "5"  
-            }
-        }
-
-        return await this.client.execute(this.contractAddress, handle)    
-    }
+ 
 
     async sendSscrt(amount : string, destination: string) {
 
         const handle = {
             send: {
                 amount: amount,
-                recipient: this.proxyAddress,
-                recipient_code_hash: "a1fbec81cea8ffcd0a7ec95cc3adfc64c4b3a4584c51af08ba0569fa1f91a821", //this.codeHash,
+                recipient: SCRT_PROXY,
+                recipient_code_hash: PROXY_HASH, //this.codeHash,
                 msg: Buffer.from(destination).toString('base64')   
             },
             
         }
 
+        console.log("handle:", handle) 
+
         return await this.client!.execute(sSCRTcontract, handle, "", undefined, { gas: "1500000", amount: undefined })    
     }
 
 
-    async sendSeth(amount : string) {
+    async sendSeth(amount : string, destination: string) {
 
-        const msg = "MHhGQTIyYzFCRjNiMDc2RDJCNTc4NUE1MjdDMzg5NDliZTQ3RWExMDgy";
 
         const handle = {
             send: {
                 amount: amount,
-                recipient: this.tokenContract,
-                recipient_code_hash: this.codeHash,
-                //msg: Buffer.from(JSON.stringify(Msg)).toString('base64') 
-                msg       
+                recipient: ETH_PROXY,
+                recipient_code_hash: PROXY_HASH,
+                msg: Buffer.from(destination).toString('base64')   
             }
         }
 
-        return await this.client.execute(sSCRTcontract, handle)    
+        return await this.client.execute(sETHcontract, handle, "", undefined, { gas: "1200000", amount: undefined })    
     }
 
 
@@ -162,6 +157,7 @@ class KeplrState {
 
       return signature
   }
+
 
     async customQueryPermit(query:object) {
 
@@ -200,10 +196,6 @@ class KeplrState {
         return await this.client.queryContractSmart(this.tokenContract, {  balance : { address : this.address, key : this.vk }})
     }
 
-    async checkTx(hash="AE362C4BEFCD9DFE46093A2CC858DEC5066220DE804E185C1B336E91858EE4B0") {
-        return await this.client.restClient.txById(hash);
-    }
-
 
     async setKey() {
         return await this.client.execute(this.tokenContract, { create_viewing_key : { entropy : "123"} })
@@ -220,9 +212,9 @@ class KeplrState {
         return await this.customQueryPermit({ tokens : { owner : this.address }})
     }
 
+
     async getLastBurnedTokens() {
         return await this.client.queryContractSmart(this.contractAddress, { swap : { nonce: this.lastNonce(), token: this.proxyAddress }})
-
     }
 
     lastNonce() {

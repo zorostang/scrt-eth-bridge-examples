@@ -2,23 +2,17 @@
 	export const prerender = true;
 </script>
 
-
 <script type="ts">
-	import { onMount } from "svelte";
 	import { web3, connected, chainId } from "svelte-web3"
+	import { scrtAccount } from "../lib/stores"
 	import Sscrt from "../components/sscrt.svelte";
 	import Eth from "../components/eth.svelte";
-	import { keplrState } from "../lib/keplr"
 
-
-	onMount(async () => {
-		console.log("Keplr is available:")
-		//console.log(JSON.stringify(keplrState))
-
-		/* fetch('/transactions')
-		.then(async res => console.log(await res.text())) */
-			
-	})
+	const ethChainIds = {
+		"1" : "Ethereum Mainnet",
+		"aa36a7" : "Sepolia",
+		"5" : "Goerli"
+	}
 </script>
 
 <svelte:head>
@@ -29,22 +23,17 @@
 	
 		<article class="d-flex flex-column">
 			<h3>
-				SCRT - ETH Bridge Example
+				SCRT - ETH Bridge Examples
 			</h3>
 
-			<p>
-				Contract Address:
-				{ import.meta.env.VITE_ETH_GOV_TOKEN_ADDRESS }
-			</p>
-
+	
 			<div class="my-3">
 				<Sscrt />
 			</div>
 
-			<!-- <div class="my-3">
+			<div class="my-3">
 				<Eth />
 			</div>
- -->
 
 
 			
@@ -53,18 +42,41 @@
 
 {#if !$connected}
 
-<p>My application is not yet connected</p>
+	<p>Not connected</p>
 
 {:else}
 
-<p>Connected to chain with id {$chainId}</p>
-<p>
-	{ #await $web3.eth.getAccounts()}
-		Waiting
-	{:then  acc} 
-		My address: {acc[0]}
-	{/await}
-</p>
+<div class="container">
+	<div class="row">
+		<div class="col-6 d-flex flex-column">
+			<h5>ETH</h5>
+			<div> Chain: {ethChainIds[$chainId] ?? $chainId}</div>
+			<div class="d-flex flex-wrap">
+				{ #await $web3.eth.getAccounts()}
+					Loading
+				{:then  acc} 
+				<span>
+					{acc[0]}
+				</span>
+				{/await}
+			</div>
+		</div>
+	
+		<div class="col-6 d-flex flex-column">
+			<h5>SCRT</h5>
+			<div>Chain: {"pulsar-2"}</div>
+			<div class="d-flex flex-wrap">
+				{ #if !$scrtAccount}
+					Loading
+				{:else } 
+				<span>
+					{$scrtAccount}
+				</span>
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
 
 {/if}
 		
@@ -78,5 +90,8 @@
 		justify-content: center;
 		align-items: center;
 		flex: 1;
+	}
+	span {
+		overflow: auto;
 	}
 </style>

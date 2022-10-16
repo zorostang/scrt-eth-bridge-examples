@@ -40,6 +40,7 @@
 
 </script>
 
+<!-- <svelte:window on:keplr_keystorechange={() => {}}> -->
 
 <main>
 	<slot />

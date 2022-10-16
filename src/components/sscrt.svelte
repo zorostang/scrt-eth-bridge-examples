@@ -30,7 +30,7 @@
         .then(res => {
             console.log(res)
 
-             fetch("/transactions", {
+            fetch("/transactions", {
                 ...postOptions,
                 body: JSON.stringify({type: "ssrtToWscrt" , body: res})
             })
@@ -135,8 +135,8 @@
 <form class="my-3">
     <label for="sscrt">Swap SSCRT to WSCRT</label>
     <div class="form-group d-flex">
-        <input type="number" id="sscrt" class="form-control" bind:value={sscrtAmount}>
-        <input type="text" id="destination" class="form-control" bind:value={wscrtDestination}>
+        <input type="number"  class="form-control" bind:value={sscrtAmount}>
+        <input type="text"  class="form-control" bind:value={wscrtDestination}>
 
         <button on:click={sscrtToWscrt} class="btn btn-primary">
             Swap
@@ -150,8 +150,8 @@
     
     <label for="sscrt">Swap WSCRT to SSRT</label>
     <div class="form-group d-flex">
-        <input type="number" id="sscrt" class="form-control" bind:value={wscrtAmount}>
-        <input type="text" id="destination" class="form-control" bind:value={sscrtDestination}>
+        <input type="number"  class="form-control" bind:value={wscrtAmount}>
+        <input type="text" class="form-control" bind:value={sscrtDestination}>
 
         <button on:click={wscrtToSscrt} class="btn btn-primary">
             Allow
