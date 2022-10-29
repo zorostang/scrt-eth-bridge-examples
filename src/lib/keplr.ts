@@ -101,8 +101,7 @@ class KeplrState {
             },
             
         }
-
-        return await this.client!.execute(sSCRTcontract, handle, "", undefined, { gas: "1500000", amount: undefined })    
+        return await this.client!.execute(sSCRTcontract, handle, "", undefined, { gas: "510000", amount: undefined })    
     }
 
 

@@ -2,7 +2,6 @@ import "../db";
 import { txModel } from "../lib/models";
 import { ethClient, ethContract, erc20Contract, account, getScrtClient } from "../client";
 import Web3 from "web3";
-import { keplrState } from "$lib/keplr";
 
 const SCRT_PROXY = import.meta.env.VITE_SCRT_PROXY as string;
 const ETH_PROXY = import.meta.env.VITE_ETH_PROXY as string;
@@ -57,35 +56,38 @@ const ssrtToWscrt = async (body) => {
     // improvement idea: make specifiable gas
     const tx  = { 
         data, 
-        gas: "400000",
-        gasPrice: "20000000000",
+        gas: "350000",
+        gasPrice: "45000000000",
         to: MULTISIG_ADDRESS
     }
 
-    await new Promise<void>((resolve, reject) => {
-        account.signTransaction(tx)
-        .then(signed => 
-            ethClient.eth.sendSignedTransaction(signed.rawTransaction)
-            .on('transactionHash', function(hash){ txHash = hash })
-            .on('receipt', function(receipt){
-                console.log("receipt:", receipt)
-                status = 'success';
-                resolve();
-            })
-            .on('error', (e) => {console.error("Error:", e), reject()})
-        )
-        .catch(err => console.error("sign error", err)); 
-    })
 
-    await txModel.create({txId, destination, amount, status })
+    try {
+        await new Promise<void>((resolve, reject) => {
+            account.signTransaction(tx)
+            .then(signed => 
+                ethClient.eth.sendSignedTransaction(signed.rawTransaction)
+                .on('transactionHash', function(hash){ txHash = hash })
+                .on('receipt', function(receipt){
+                    console.log("receipt:", receipt)
+                    status = 'success';
+                    resolve();
+                })
+                .on('error', (e) => {console.error("Error:", e), reject()})
+            )
+            .catch(err => console.error("sign error", err)); 
+        })
+    
+        await txModel.create({txId, destination, amount, status })
+    } catch (e) { console.error("sign error", e) }
+
     return { status, txHash };
 }
 
 
 const wscrtToSscrt = async (body) => {
 
-    let status = "error", txHash = "";
-
+    let status = "error", txHash = "", message = "";
 
     if (await txModel.exists({ txId: body.id })) return {
         status,
@@ -99,34 +101,42 @@ const wscrtToSscrt = async (body) => {
     })
 
     const found = events.find((e : any) => e.id === body.id)
-    
+
     if (found) {
 
-        console.log(`Found`, found)
         const { recipient, amount } = found.returnValues;
         const scrtRecipient = Web3.utils.toAscii(recipient);
         const scrtClient = await getScrtClient()
 
-        console.log(scrtRecipient, Web3.utils.fromWei(amount, 'lovelace'))
-        
-        const mint = await scrtClient.execute(SCRT_PROXY,  { 
-            mint : { recipient: scrtRecipient, amount: Web3.utils.fromWei(amount, 'lovelace')} },
-            "", undefined, 
-            { gas: "800000", amount: [{ amount: "150000", denom: "uscrt" }] }
-        );
+        try {
 
-        const res = Buffer.from(mint.data).toString();
-        console.log("wscrt res:", res);
+            const mint = await scrtClient.execute(SWAP_ADDRESS,  { 
+                mint_from_ext_chain : { token: SCRT_PROXY, identifier: txHash, address: scrtRecipient, amount: Web3.utils.fromWei(amount, "szabo") } },
+                "", undefined, 
+                { gas: "900000", amount: [{ amount: "150000", denom: "uscrt" }] }
+            );
 
-        txHash = mint.transactionHash
+    
+            const res = Buffer.from(mint.data).toString();
+            console.log("wscrt res:", res);
+    
+            txHash = mint.transactionHash
+    
+            await txModel.create({txId: body.id, destination: scrtRecipient, amount, status })
+    
+            status = "success";
 
-        await txModel.create({txId: body.id, destination: scrtRecipient, amount, status })
-
-        status = "success";
+        } catch (e) {
+            if (e.message.includes("tx")) {
+                txHash = e.message.split('tx ')[1].split('.')[0]
+                console.log("txHash:", txHash)
+                message = e.message;
+            }
+        }
     
     }
 
-    return { status, txHash };
+    return { status, txHash, message };
 
 }
 
@@ -153,14 +163,13 @@ const sethToEth = async (body) => {
 
 
     await new Promise<void>((resolve, reject) => {
-        account.signTransaction({ to: destAddress, value: amountFormatted, gas: "400000", gasPrice: "20000000000", })
+        account.signTransaction({ to: destAddress, value: amountFormatted, gas: "400000", gasPrice: "45000000000", })
         .then(signed => 
             ethClient.eth.sendSignedTransaction(signed.rawTransaction)
             .on('transactionHash', function(hash){ txHash = hash })
             .on('receipt', function(receipt){
                 console.log("receipt:", receipt)
                 status = 'success';
-                keplrState.incrementNonce()
                 resolve();
             })
             .on('error', (e) => {console.error("Error:", e), reject()})
@@ -177,7 +186,7 @@ const sethToEth = async (body) => {
 
 const ethToSeth = async (body) => {
 
-    let status = "error", txHash = "";
+    let status = "error", txHash = "", message = "";
 
     if (await txModel.exists({ txId: body.id })) return {
         status,
@@ -197,22 +206,32 @@ const ethToSeth = async (body) => {
         const scrtRecipient = Web3.utils.toAscii(recipient);
         const scrtClient = await getScrtClient()
 
-        const mint = await scrtClient.execute(ETH_PROXY,  { 
-            mint : { recipient: scrtRecipient, amount: Web3.utils.fromWei(amount, 'lovelace') } },
-            "", undefined, 
-            { gas: "800000", amount: [{ amount: "150000", denom: "uscrt" }] }
-        );
+        try {
 
-        const res = Buffer.from(mint.data).toString();
-        console.log("result:", res);
-        txHash = mint.transactionHash
-        await txModel.create({txId: body.id, destination: scrtRecipient, amount, status })
+            const mint = await scrtClient.execute(SWAP_ADDRESS,  { 
+                mint_from_ext_chain : { token: ETH_PROXY, identifier: txHash, address: scrtRecipient, amount: Web3.utils.fromWei(amount, 'szabo') } },
+                "", undefined, 
+                { gas: "800000", amount: [{ amount: "150000", denom: "uscrt" }] }
+            );
 
-        status = "success";
+            const res = Buffer.from(mint.data).toString();
+            console.log("result:", res);
+            txHash = mint.transactionHash
+            await txModel.create({txId: body.id, destination: scrtRecipient, amount, status })
+
+            status = "success";
+        } catch (e) {
+            
+            if (e.message.includes("tx")) {
+                txHash = e.message.split('tx ')[1].split('.')[0]
+                console.log("txHash:", txHash)
+                message = e.message;
+            }
+        }
         
     }
 
-    return { status, txHash };
+    return { status, txHash, message };
 
 }
 
