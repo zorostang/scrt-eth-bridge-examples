@@ -1,7 +1,7 @@
 import Web3 from "web3"
-import { CosmWasmClient, encodeSecp256k1Pubkey, EnigmaUtils, pubkeyToAddress, Secp256k1Pen, SigningCosmWasmClient } from "secretjs";
-import json from "./assets/Contract.json"
-import erc20json from "./assets/ERC20.json";
+import { encodeSecp256k1Pubkey, EnigmaUtils, pubkeyToAddress, Secp256k1Pen, SigningCosmWasmClient } from "secretjs";
+import json from "../assets/Contract.json"
+import erc20json from "../assets/ERC20.json";
 
 const SCRT_ENDPOINT = import.meta.env.VITE_SCRT_ENDPOINT as string;
 const ETH_ENDPOINT = import.meta.env.VITE_ETH_ENDPOINT as string;

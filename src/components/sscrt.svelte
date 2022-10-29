@@ -7,11 +7,11 @@
     import jsonSwap  from "../assets/Contract.json"
     import jsonErc20  from "../assets/ERC20.json"
     import { postOptions } from "$lib/utils";
-    import type {Contract} from 'web3-eth-contract';
+    import type { Contract } from 'web3-eth-contract';
     import Loading from "./loading.svelte";
 
-    const WSCRT_ADDRESS = import.meta.env.VITE_ERC20 as string;
-    const MANAGER_ADDRESS = import.meta.env.VITE_MULTISIG as string;
+    const WSCRT_ADDRESS = import.meta.env.VITE_ERC20;
+    const MANAGER_ADDRESS = import.meta.env.VITE_MULTISIG;
 
     let 
         wscrtLoading : boolean = false,

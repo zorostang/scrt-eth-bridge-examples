@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
     },
-	"extends": "./.svelte-kit/tsconfig.json"
+	"extends": "./.svelte-kit/tsconfig.json",
 }  

@@ -1,7 +1,3 @@
-<script context="module" lang="ts">
-	export const prerender = true;
-</script>
-
 <script type="ts">
 	import { web3, connected, chainId } from "svelte-web3";
 	import { scrtAccount, keplrConnected } from "../lib/stores";
@@ -14,9 +10,9 @@
 		"5" : "Goerli"
 	}
 
-    const WSCRT = import.meta.env.VITE_ERC20 as string;
-    const SETH = import.meta.env.VITE_SETH as string;
-    const SSCRT = import.meta.env.VITE_SSCRT as string;
+    const WSCRT = import.meta.env.VITE_ERC20;
+    const SETH = import.meta.env.VITE_SETH;
+    const SSCRT = import.meta.env.VITE_SSCRT;
 
 
 	$: chainName = ethChainIds[$chainId] ?? $chainId 

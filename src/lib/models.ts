@@ -1,4 +1,5 @@
-import { prop, getModelForClass, modelOptions } from '@typegoose/typegoose';
+import pkg from '@typegoose/typegoose';
+const { prop, getModelForClass, modelOptions } = pkg;
 
 
 @modelOptions({ schemaOptions: { collection: 'txs', timestamps: true, versionKey: false } })

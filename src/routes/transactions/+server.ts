@@ -1,6 +1,5 @@
-import "../db";
-import { txModel } from "../lib/models";
-import { ethClient, ethContract, erc20Contract, account, getScrtClient } from "../client";
+import { txModel } from "../../lib/models";
+import { ethClient, ethContract, erc20Contract, account, getScrtClient } from "$lib/client";
 import Web3 from "web3";
 
 const SCRT_PROXY = import.meta.env.VITE_SCRT_PROXY as string;
@@ -246,16 +245,20 @@ const SWAP_MAPPING : { [typ: string] : (body:any) => Promise<Result> } = {
 
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
-export async function post({ request }) {
+export async function POST({ request }) {
     
     const {type, body} = await request.json();
 
     try {
         const result = await SWAP_MAPPING[type](body)
-        return { status: result.status === "success" ? 201 : 400,  body: result };
+
+        return new Response(JSON.stringify(result), {
+            status: result.status === "success" ? 201 : 400
+        })
+
     } catch(e) {
-        console.error("Error:", e)
-        return { status: 400, body: e }
+        
+        return new Response(e.message ?? JSON.stringify(e), { status : 400 }); 
     }
 
    

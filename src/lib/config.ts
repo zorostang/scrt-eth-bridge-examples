@@ -14,6 +14,5 @@ export const {
     SCRT_ENDPOINT,
     ETH_ENDPOINT,
     ETH_PK,
-    ETH_PK2,
     ETH_ERC20_ADDRESS
 } = process.env;

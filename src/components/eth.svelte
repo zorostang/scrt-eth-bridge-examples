@@ -7,7 +7,7 @@
     import json from "../assets/Contract.json"
     import Loading from './loading.svelte';
     
-    const MULTISIG = import.meta.env.VITE_MULTISIG as string; 
+    const MULTISIG = import.meta.env.VITE_MULTISIG; 
 
     let 
         ethLoading : boolean = false,
