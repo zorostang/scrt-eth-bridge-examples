@@ -2,7 +2,7 @@
 	"name": "smui-example-sveltekit",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "NODE_ENV=development vite dev",
+		"dev": "NODE_ENV=development vite dev --port 3000",
 		"build": "rm -rf build && vite build",
 		"lint": "prettier --ignore-path .gitignore  --check --plugin-search-dir=. . && eslint --ignore-path .gitignore ."
 	},
