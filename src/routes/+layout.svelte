@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { keplrState } from '../stores';
+	import { keplrState } from '../lib/keplr';
 	import { onMount } from 'svelte';
 	import { web3, connected, chainId, defaultEvmStores } from "svelte-web3"
 
@@ -40,6 +40,7 @@
 
 </script>
 
+<!-- <svelte:window on:keplr_keystorechange={() => {}}> -->
 
 <main>
 	<slot />

@@ -1,0 +1,40 @@
+
+version: "3.7"
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo_bridge
+    ports:
+      - '27016:27017'
+    environment:
+      - MONGO_INITDB_DATABASE=bridge
+    volumes:
+      - ./db:/data/db
+  web:
+    image: kromsten/scrt-eth-bridge:0.1
+    #build: .
+    container_name: web_bridge
+    expose:
+      - 3000
+    volumes:
+      - node_modules:/app/node_modules
+    restart: 'unless-stopped'
+    depends_on:
+      - mongo
+  
+  proxy:
+    image: kromsten/nginx_bridge:1.0
+    #build: 
+    #  context: .
+    #  dockerfile: Dockerfile.Nginx
+    container_name: proxy_bridge
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - web
+
+volumes:
+  node_modules:
+    driver: local

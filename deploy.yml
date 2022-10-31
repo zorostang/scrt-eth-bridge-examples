@@ -1,0 +1,95 @@
+---
+version: "2.0"
+
+services:
+  mongo:
+    image: mongo:latest
+    expose:
+      - port: 27017
+        to:
+          - service: web
+        
+    env:
+      - MONGO_INITDB_DATABASE=bridge
+      
+
+  proxy:
+    image: kromsten/nginx_bridge:1.0
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+      - port: 443
+        as: 443
+        to:
+          - global: true
+      
+    depends_on:
+      - web
+
+  web:
+    image: kromsten/scrt-eth-bridge:0.1
+    expose:
+      - port: 3000
+        to:
+          - service: proxy
+    depends_on:
+      - mongo
+
+profiles:
+  compute:
+    web:
+      resources:  
+        cpu:
+          units: 0.2
+        memory: 
+          size: 128Mi
+        storage: 
+          size: 256Mi
+    proxy:
+      resources: 
+        cpu:
+          units: 0.3
+        memory: 
+          size: 128Mi
+        storage:
+          size: 64Mi
+    mongo:
+      resources: 
+        cpu:
+          units: 0.2
+        memory: 
+          size: 256Mi
+        storage:
+          size: 512Mi
+
+
+  placement:
+    akash:
+      attributes:
+        host: akash
+      pricing:
+        web: 
+          denom: uakt
+          amount: 20000
+        proxy: 
+          denom: uakt
+          amount: 20000
+        mongo: 
+          denom: uakt
+          amount: 25000
+
+deployment:
+  web:
+    akash:
+      profile: web
+      count: 1
+  proxy:
+    akash:
+      profile: proxy
+      count: 1
+  mongo:
+    akash:
+      profile: mongo
+      count: 1
