@@ -7,6 +7,7 @@ In order to support the newest testnets of Secrer Network and Ethereum and to si
 Keep noted that the bridge itself is not of production value and is triggered by POST request instead of listening to events on blckchain.
 
 [Public Akash Demo](http://ikge3m8fd9etv4stispqq2djg8.ingress.akh.isotechnics.com)
+(Pulsar-2 <-> Goerli)
 
 ## Installation:
 
